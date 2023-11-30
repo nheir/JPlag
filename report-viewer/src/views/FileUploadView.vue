@@ -2,7 +2,7 @@
   Starting view of the application. Presents the options for loading a JPlag report.
 -->
 <template>
-  <div class="container" @dragover.prevent @drop.prevent="uploadFile">
+  <div class="container" @dragover.prevent @drop.prevent="dropFile">
     <img alt="JPlag" src="@/assets/logo-nobg.png" />
     <h1>JPlag Report Viewer</h1>
     <div v-if="!hasQueryFile" class="container" style="height: auto">
@@ -10,6 +10,9 @@
       <h3>(No files get uploaded anywhere)</h3>
       <div class="drop-container">
         <p>Drop a .json or .zip on this page</p>
+      </div>
+      <div class="file-input">
+        <input type="file" ref="file" @change="uploadFile"/>
       </div>
       <div v-if="hasLocalFile" class="local-files-container">
         <p class="local-files-text">Detected local files!</p>
@@ -194,7 +197,7 @@ export default defineComponent({
      * Handles file drop.
      * @param e
      */
-    const uploadFile = async (e: DragEvent) => {
+    const dropFile = async (e: DragEvent) => {
       let dropped = e.dataTransfer?.files;
       try {
         if (dropped?.length === 1) {
@@ -223,6 +226,23 @@ export default defineComponent({
         alert(e);
       }
     }
+    const uploadFile = async (e: Event) => {
+      let files = (e.target as HTMLInputElement).files;
+      try {
+        if (files?.length === 1) {
+          await handleFile(files[0]);
+        } else {
+          throw new LoadError('Not exactly one file');
+        }
+      } catch (e) {
+        if (e instanceof LoadError) {
+          console.warn(e);
+          alert(e.message);
+        } else {
+          throw e;
+        }
+      }
+    }
     /**
      * Handles click on Continue with local files.
      */
@@ -242,6 +262,7 @@ export default defineComponent({
 
     return {
       continueWithLocal,
+      dropFile,
       uploadFile,
       hasLocalFile,
       hasQueryFile: queryFileURL !== null,
@@ -300,10 +321,6 @@ export default defineComponent({
 .local-files-button:hover {
   cursor: pointer;
   background: var(--primary-color-dark);
-}
-
-input {
-  display: none;
 }
 
 label {
