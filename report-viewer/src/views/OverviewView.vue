@@ -7,48 +7,24 @@
       <h1>JPlag Report</h1>
       <p class="section-title">Main Info:</p>
       <div id="basicInfo">
-        <TextInformation
-          :has-additional-info="hasMoreSubmissionPaths"
-          :value="submissionPathValue"
-          additional-info-title=""
-          label="Directory path"
-        >
-          <p
-            v-for="path in overview.submissionFolderPath"
-            :key="path"
-            :title="path"
-          >
+        <TextInformation :has-additional-info="hasMoreSubmissionPaths" :value="submissionPathValue"
+          additional-info-title="" label="Directory path">
+          <p v-for="path in overview.submissionFolderPath" :key="path" :title="path">
             {{ path }}
           </p>
         </TextInformation>
-        <TextInformation
-          :has-additional-info="true"
-          :value="overview.language"
-          additional-info-title="File extensions:"
-          label="Language"
-        >
+        <TextInformation :has-additional-info="true" :value="overview.language" additional-info-title="File extensions:"
+          label="Language">
           <p v-for="info in overview.fileExtensions" :key="info">{{ info }}</p>
         </TextInformation>
-        <TextInformation
-          :value="overview.matchSensitivity"
-          label="Match Sensitivity"
-        />
-        <TextInformation
-          :has-additional-info="true"
-          :value="store.getters.getSubmissionIds.size"
-          additional-info-title="Submission IDs:"
-          label="Submissions"
-        >
+        <TextInformation :value="overview.matchSensitivity" label="Match Sensitivity" />
+        <TextInformation :has-additional-info="true" :value="store.getters.getSubmissionIds.size"
+          additional-info-title="Submission IDs:" label="Submissions">
           <IDsList :ids="store.getters.getSubmissionIds" @id-sent="handleId" />
         </TextInformation>
-        <TextInformation
-          :value="overview.dateOfExecution"
-          label="Date of execution"
-        />
-        <TextInformation
-          :value="overview.durationOfExecution"
-          label="Duration (in ms)"
-        />
+        <TextInformation :value="overview.dateOfExecution" label="Date of execution" />
+        <TextInformation :value="overview.durationOfExecution" label="Duration (in ms)" />
+        <button @click="navigateToGridView()">Grid view</button>
       </div>
       <div id="logo-section">
         <img id="logo" alt="JPlag" src="@/assets/logo-nobg.png" />
@@ -59,32 +35,21 @@
       <div id="metrics">
         <p class="section-title">Metric:</p>
         <div id="metrics-list">
-          <MetricButton
-            v-for="(metric, index) in overview.metrics"
-            :id="metric.metricName"
-            :key="metric.metricName"
-            :is-selected="selectedMetric[index]"
-            :metric="metric"
-            @click="selectMetric(index)"
-          />
+          <MetricButton v-for="(metric, index) in overview.metrics" :id="metric.metricName" :key="metric.metricName"
+            :is-selected="selectedMetric[index]" :metric="metric" @click="selectMetric(index)" />
         </div>
       </div>
       <p class="section-title">Distribution:</p>
-      <DistributionDiagram
-        :distribution="distributions[selectedMetricIndex]"
-        class="full-width"
-      />
+      <DistributionDiagram :distribution="distributions[selectedMetricIndex]" class="full-width" />
     </div>
     <div class="column-container" style="width: 35%">
       <p class="section-title">Top Comparisons:</p>
       <div id="comparisonsList">
-        <ComparisonsTable
-          :clusters="overview.clusters"
-          :top-comparisons="topComps[selectedMetricIndex]"
-        />
+        <ComparisonsTable :clusters="overview.clusters" :top-comparisons="topComps[selectedMetricIndex]" />
       </div>
-      <div v-if="missingComparisons!==0 && !isNaN(missingComparisons)">
-        <h3>Total comparisons: {{overview.totalComparisons}}, Shown comparisons: {{shownComparisons}}, Missing comparisons: {{missingComparisons}}. To see more, re-run JPlag with a higher maximum number argument.</h3>
+      <div v-if="missingComparisons !== 0 && !isNaN(missingComparisons)">
+        <h3>Total comparisons: {{ overview.totalComparisons }}, Shown comparisons: {{ shownComparisons }}, Missing
+          comparisons: {{ missingComparisons }}. To see more, re-run JPlag with a higher maximum number argument.</h3>
       </div>
     </div>
   </div>
@@ -136,8 +101,8 @@ export default defineComponent({
           router.back();
         }
       } else if (store.state.zip) {
-        if(overviewFile.value===undefined){
-          return new Overview([],"","",[],0,"",0,[],[],0, new Map<string, Map<string, string>>());
+        if (overviewFile.value === undefined) {
+          return new Overview([], "", "", [], 0, "", 0, [], [], 0, new Map<string, Map<string, string>>());
         }
         const overviewJson = JSON.parse(overviewFile.value);
         temp = OverviewFactory.getOverview(overviewJson);
@@ -212,12 +177,18 @@ export default defineComponent({
       ? "Click arrow to see all paths"
       : overview.submissionFolderPath[0];
 
-    const shownComparisons = computed(()=>{
+    const shownComparisons = computed(() => {
       return overview.metrics[selectedMetricIndex.value]?.comparisons.length;
     });
     const missingComparisons = overview.totalComparisons - shownComparisons.value;
 
-    onErrorCaptured(()=>{
+    const navigateToGridView = () => {
+      router.push({
+        name: "GridView",
+      });
+    };
+
+    onErrorCaptured(() => {
       router.push({
         name: "ErrorView",
         state: {
@@ -243,6 +214,7 @@ export default defineComponent({
       handleId,
       selectMetric,
       store,
+      navigateToGridView,
     };
   },
 });

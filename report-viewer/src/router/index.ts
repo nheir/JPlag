@@ -16,6 +16,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/OverviewView.vue'),
   },
   {
+    path: "/grid",
+    name: "GridView",
+    component: () => import('@/views/GridView.vue'),
+  },
+  {
     path: "/comparison/:firstId/:secondId",
     name: "ComparisonView",
     component: () => import('@/views/ComparisonView.vue'),
